@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt详情 - PromptGallery</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* 导航栏样式 */
+        .navbar {
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            color: #000;
+            font-weight: bold;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #00ffff;
+            border: 2px solid #00ffff;
+        }
+
+        /* 主要内容区域 */
+        .main-content {
+            margin-top: 80px;
+            padding: 2rem;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* 返回按钮 */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #00ffff;
+            text-decoration: none;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            color: #ffffff;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        /* 详情页布局 */
+        .detail-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .detail-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        /* 图片预览区域 */
+        .image-preview {
+            position: relative;
+        }
+
+        .preview-image {
+            width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .preview-image:hover {
+            transform: scale(1.02);
+        }
+
+        .image-overlay {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .overlay-btn {
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            color: #ffffff;
+            padding: 0.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .overlay-btn:hover {
+            background: rgba(0, 255, 255, 0.8);
+            color: #000;
+        }
+
+        /* 信息面板 */
+        .info-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+        }
+
+        .prompt-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .prompt-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #cccccc;
+        }
+
+        .ai-model-badge {
+            background: linear-gradient(45deg, #ff00ff, #00ffff);
+            color: #000;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .prompt-description {
+            color: #cccccc;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        /* Prompt文本区域 */
+        .prompt-text-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #00ffff;
+        }
+
+        .prompt-text {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 1.5rem;
+            font-family: 'Courier New', monospace;
+            color: #ffffff;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .copy-prompt-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            border: none;
+            color: #000;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .copy-prompt-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
+        }
+
+        /* 参数展示 */
+        .parameters-section {
+            margin-bottom: 2rem;
+        }
+
+        .parameters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .parameter-item {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .parameter-label {
+            color: #00ffff;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .parameter-value {
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        /* 操作按钮区域 */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-test {
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            color: #000;
+        }
+
+        .btn-like {
+            background: transparent;
+            color: #ff6b6b;
+            border: 2px solid #ff6b6b;
+        }
+
+        .btn-save {
+            background: transparent;
+            color: #00ffff;
+            border: 2px solid #00ffff;
+        }
+
+        .btn-share {
+            background: transparent;
+            color: #ff00ff;
+            border: 2px solid #ff00ff;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+        }
+
+        /* 统计信息 */
+        .stats-section {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00ffff;
+        }
+
+        .stat-label {
+            color: #cccccc;
+            font-size: 0.9rem;
+        }
+
+        /* 讨论区域 */
+        .discussion-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        .discussion-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: #cccccc;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: #00ffff;
+            border-bottom-color: #00ffff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 评论区 */
+        .comment-form {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .comment-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            color: #ffffff;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 1rem;
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+        }
+
+        .submit-comment {
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            color: #000;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .comment-list {
+            space-y: 1rem;
+        }
+
+        .comment-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .comment-author {
+            color: #00ffff;
+            font-weight: bold;
+        }
+
+        .comment-time {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .comment-content {
+            color: #cccccc;
+            line-height: 1.5;
+        }
+
+        /* 优化建议区 */
+        .optimization-item {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 165, 0, 0.3);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .optimization-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .optimization-title {
+            color: #ffa500;
+            font-weight: bold;
+        }
+
+        .optimization-votes {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .vote-btn {
+            background: transparent;
+            border: 1px solid #ffa500;
+            color: #ffa500;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .optimization-content {
+            color: #cccccc;
+            margin-bottom: 1rem;
+        }
+
+        .optimization-prompt {
+            background: rgba(255, 165, 0, 0.1);
+            border: 1px solid rgba(255, 165, 0, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            color: #ffa500;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">PromptGallery</a>
+            <ul class="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="search.html">发现</a></li>
+                <li><a href="community.html">社区</a></li>
+                <li><a href="#">API</a></li>
+            </ul>
+            <div class="user-actions">
+                <a href="login.html" class="btn btn-outline">登录</a>
+                <a href="register.html" class="btn btn-primary">注册</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <main class="main-content">
+        <!-- 返回按钮 -->
+        <a href="index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            返回首页
+        </a>
+
+        <!-- 详情容器 -->
+        <div class="detail-container">
+            <!-- 图片预览区域 -->
+            <div class="image-preview">
+                <img src="https://picsum.photos/600/800?random=1" alt="Prompt预览" class="preview-image" id="previewImage">
+                <div class="image-overlay">
+                    <button class="overlay-btn" onclick="downloadImage()" title="下载图片">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="overlay-btn" onclick="fullscreenImage()" title="全屏查看">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 信息面板 -->
+            <div class="info-panel">
+                <h1 class="prompt-title" id="promptTitle">赛博朋克城市夜景</h1>
+                
+                <div class="prompt-meta">
+                    <div class="ai-model-badge" id="aiModel">Midjourney</div>
+                    <div class="meta-item">
+                        <i class="fas fa-user"></i>
+                        <span id="author">AI_Artist_Pro</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-calendar"></i>
+                        <span id="createDate">2025-01-17</span>
+                    </div>
+                </div>
+
+                <p class="prompt-description" id="promptDescription">
+                    未来主义城市夜景，霓虹灯闪烁，雨夜氛围，高质量渲染。这个Prompt能够生成具有强烈赛博朋克风格的城市场景，适合用于游戏概念设计、电影场景制作等用途。
+                </p>
+
+                <!-- 统计信息 -->
+                <div class="stats-section">
+                    <div class="stat-item">
+                        <div class="stat-number" id="likesCount">1,234</div>
+                        <div class="stat-label">点赞</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="copiesCount">567</div>
+                        <div class="stat-label">复制</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="viewsCount">8,901</div>
+                        <div class="stat-label">浏览</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="savesCount">234</div>
+                        <div class="stat-label">收藏</div>
+                    </div>
+                </div>
+
+                <!-- Prompt文本 -->
+                <div class="prompt-text-section">
+                    <h3 class="section-title">Prompt文本</h3>
+                    <div class="prompt-text" id="promptText">
+                        cyberpunk city at night, neon lights reflecting on wet streets, futuristic architecture, rain, atmospheric lighting, high quality render, cinematic composition --ar 16:9 --v 6 --style raw
+                        <button class="copy-prompt-btn" onclick="copyPromptText()">
+                            <i class="fas fa-copy"></i> 复制
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 参数展示 -->
+                <div class="parameters-section">
+                    <h3 class="section-title">参数详情</h3>
+                    <div class="parameters-grid">
+                        <div class="parameter-item">
+                            <div class="parameter-label">宽高比</div>
+                            <div class="parameter-value">16:9</div>
+                        </div>
+                        <div class="parameter-item">
+                            <div class="parameter-label">版本</div>
+                            <div class="parameter-value">v6</div>
+                        </div>
+                        <div class="parameter-item">
+                            <div class="parameter-label">风格</div>
+                            <div class="parameter-value">Raw</div>
+                        </div>
+                        <div class="parameter-item">
+                            <div class="parameter-label">质量</div>
+                            <div class="parameter-value">高质量</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="action-buttons">
+                    <button class="action-btn btn-test" onclick="testPrompt()">
+                        <i class="fas fa-play"></i>
+                        测试Prompt
+                    </button>
+                    <button class="action-btn btn-like" onclick="likePrompt()">
+                        <i class="fas fa-heart"></i>
+                        点赞
+                    </button>
+                    <button class="action-btn btn-save" onclick="savePrompt()">
+                        <i class="fas fa-bookmark"></i>
+                        收藏
+                    </button>
+                    <button class="action-btn btn-share" onclick="sharePrompt()">
+                        <i class="fas fa-share"></i>
+                        分享
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 讨论区域 -->
+        <div class="discussion-section">
+            <h2 class="section-title">社区讨论</h2>
+            
+            <!-- 标签页 -->
+            <div class="discussion-tabs">
+                <button class="tab-btn active" onclick="switchTab('comments')">评论讨论</button>
+                <button class="tab-btn" onclick="switchTab('optimizations')">优化建议</button>
+                <button class="tab-btn" onclick="switchTab('qa')">问答</button>
+            </div>
+
+            <!-- 评论标签页 -->
+            <div class="tab-content active" id="comments">
+                <div class="comment-form">
+                    <textarea class="comment-input" placeholder="分享你的想法和使用体验..."></textarea>
+                    <button class="submit-comment" onclick="submitComment()">发表评论</button>
+                </div>
+                
+                <div class="comment-list">
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <span class="comment-author">DesignMaster</span>
+                            <span class="comment-time">2小时前</span>
+                        </div>
+                        <div class="comment-content">
+                            这个Prompt效果非常棒！我用它生成了几张图片，都很符合赛博朋克的氛围。建议可以尝试调整一下lighting参数。
+                        </div>
+                    </div>
+                    
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <span class="comment-author">AICreator</span>
+                            <span class="comment-time">5小时前</span>
+                        </div>
+                        <div class="comment-content">
+                            非常实用的Prompt，我在游戏概念设计中使用了这个，效果超出预期。感谢分享！
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 优化建议标签页 -->
+            <div class="tab-content" id="optimizations">
+                <div class="comment-form">
+                    <textarea class="comment-input" placeholder="提供你的优化建议和改进版本..."></textarea>
+                    <button class="submit-comment" onclick="submitOptimization()">提交优化建议</button>
+                </div>
+                
+                <div class="optimization-item">
+                    <div class="optimization-header">
+                        <span class="optimization-title">增强雨夜效果版本</span>
+                        <div class="optimization-votes">
+                            <button class="vote-btn">👍 15</button>
+                            <button class="vote-btn">👎 2</button>
+                        </div>
+                    </div>
+                    <div class="optimization-content">
+                        建议在原Prompt基础上增加更多雨夜细节描述，能够生成更加逼真的雨水反射效果。
+                    </div>
+                    <div class="optimization-prompt">
+                        cyberpunk city at night, heavy rain, neon lights reflecting on wet asphalt, puddles with colorful reflections, futuristic architecture, atmospheric fog, cinematic lighting, photorealistic --ar 16:9 --v 6
+                    </div>
+                </div>
+                
+                <div class="optimization-item">
+                    <div class="optimization-header">
+                        <span class="optimization-title">简化版本</span>
+                        <div class="optimization-votes">
+                            <button class="vote-btn">👍 8</button>
+                            <button class="vote-btn">👎 1</button>
+                        </div>
+                    </div>
+                    <div class="optimization-content">
+                        对于初学者更友好的简化版本，去除了一些复杂参数但保持核心效果。
+                    </div>
+                    <div class="optimization-prompt">
+                        cyberpunk city night scene, neon lights, rain, futuristic buildings --ar 16:9
+                    </div>
+                </div>
+            </div>
+
+            <!-- 问答标签页 -->
+            <div class="tab-content" id="qa">
+                <div class="comment-form">
+                    <textarea class="comment-input" placeholder="提出你的问题..."></textarea>
+                    <button class="submit-comment" onclick="submitQuestion()">提交问题</button>
+                </div>
+                
+                <div class="comment-item">
+                    <div class="comment-header">
+                        <span class="comment-author">NewbieLearner</span>
+                        <span class="comment-time">1天前</span>
+                    </div>
+                    <div class="comment-content">
+                        <strong>问：</strong>这个Prompt在DALL-E上效果如何？需要做什么调整吗？
+                    </div>
+                </div>
+                
+                <div class="comment-item">
+                    <div class="comment-header">
+                        <span class="comment-author">ExpertUser</span>
+                        <span class="comment-time">1天前</span>
+                    </div>
+                    <div class="comment-content">
+                        <strong>答：</strong>在DALL-E上需要去掉--ar和--v参数，其他部分效果很好。建议加上"digital art"关键词。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 标签页切换
+        function switchTab(tabName) {
+            // 隐藏所有标签页内容
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // 移除所有标签按钮的active状态
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 显示选中的标签页
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // 复制Prompt文本
+        function copyPromptText() {
+            const promptText = document.getElementById('promptText').textContent.trim();
+            navigator.clipboard.writeText(promptText).then(() => {
+                alert('Prompt已复制到剪贴板！');
+            });
+        }
+
+        // 测试Prompt
+        function testPrompt() {
+            alert('正在连接AI模型进行测试...');
+            // 这里可以集成实际的AI模型API
+        }
+
+        // 点赞功能
+        function likePrompt() {
+            const likesElement = document.getElementById('likesCount');
+            let currentLikes = parseInt(likesElement.textContent.replace(',', ''));
+            likesElement.textContent = (currentLikes + 1).toLocaleString();
+            alert('已点赞！');
+        }
+
+        // 收藏功能
+        function savePrompt() {
+            alert('已添加到收藏夹！');
+        }
+
+        // 分享功能
+        function sharePrompt() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('链接已复制到剪贴板！');
+            });
+        }
+
+        // 下载图片
+        function downloadImage() {
+            const img = document.getElementById('previewImage');
+            const link = document.createElement('a');
+            link.href = img.src;
+            link.download = 'prompt-preview.jpg';
+            link.click();
+        }
+
+        // 全屏查看图片
+        function fullscreenImage() {
+            const img = document.getElementById('previewImage');
+            if (img.requestFullscreen) {
+                img.requestFullscreen();
+            }
+        }
+
+        // 提交评论
+        function submitComment() {
+            const textarea = document.querySelector('#comments .comment-input');
+            if (textarea.value.trim()) {
+                alert('评论已提交！');
+                textarea.value = '';
+            }
+        }
+
+        // 提交优化建议
+        function submitOptimization() {
+            const textarea = document.querySelector('#optimizations .comment-input');
+            if (textarea.value.trim()) {
+                alert('优化建议已提交！');
+                textarea.value = '';
+            }
+        }
+
+        // 提交问题
+        function submitQuestion() {
+            const textarea = document.querySelector('#qa .comment-input');
+            if (textarea.value.trim()) {
+                alert('问题已提交！');
+                textarea.value = '';
+            }
+        }
+
+        // 页面加载时的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 可以在这里添加页面初始化逻辑
+            // 比如从URL参数获取Prompt ID并加载对应数据
+            const urlParams = new URLSearchParams(window.location.search);
+            const promptId = urlParams.get('id');
+            if (promptId) {
+                // 根据ID加载对应的Prompt数据
+                console.log('Loading prompt with ID:', promptId);
+            }
+        });
+    </script>
+</body>
+</html>

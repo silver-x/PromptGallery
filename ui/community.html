@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社区 - PromptGallery</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* 导航栏样式 */
+        .navbar {
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            color: #000;
+            font-weight: bold;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #00ffff;
+            border: 2px solid #00ffff;
+        }
+
+        /* 主要内容区域 */
+        .main-content {
+            margin-top: 80px;
+            padding: 2rem;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .page-subtitle {
+            color: #cccccc;
+            font-size: 1.1rem;
+        }
+
+        /* 社区导航标签 */
+        .community-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            color: #ffffff;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-btn:hover,
+        .tab-btn.active {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: #00ffff;
+            color: #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        /* 内容区域 */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* 发帖区域 */
+        .post-form {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #00ffff;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #cccccc;
+            font-weight: bold;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 8px;
+            color: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            color: #ffffff;
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            color: #000;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 255, 255, 0.3);
+        }
+
+        /* 帖子列表 */
+        .posts-container {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .post-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .post-card:hover {
+            border-color: #00ffff;
+            box-shadow: 0 10px 20px rgba(0, 255, 255, 0.1);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid #00ffff;
+        }
+
+        .author-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .author-name {
+            font-weight: bold;
+            color: #00ffff;
+        }
+
+        .post-time {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .post-category {
+            background: linear-gradient(45deg, #ff00ff, #00ffff);
+            color: #000;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .post-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+
+        .post-content {
+            color: #cccccc;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .post-prompt {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            color: #00ffff;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: rgba(0, 255, 255, 0.8);
+            color: #000;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .post-stats {
+            display: flex;
+            gap: 1.5rem;
+            color: #888;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .stat-item:hover {
+            color: #00ffff;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            color: #00ffff;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+        }
+
+        .action-btn:hover {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: #00ffff;
+        }
+
+        /* 交易请求特殊样式 */
+        .trade-card {
+            border-left: 4px solid #ffa500;
+        }
+
+        .trade-price {
+            background: linear-gradient(45deg, #ffa500, #ff6b6b);
+            color: #000;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .trade-status {
+            background: rgba(255, 165, 0, 0.2);
+            color: #ffa500;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        /* 优化建议特殊样式 */
+        .optimization-card {
+            border-left: 4px solid #00ff00;
+        }
+
+        .optimization-votes {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .vote-btn {
+            background: transparent;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .vote-btn:hover {
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .vote-btn.upvoted {
+            background: #00ff00;
+            color: #000;
+        }
+
+        /* 问答特殊样式 */
+        .qa-card {
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .qa-status {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .qa-status.solved {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+
+        /* 回复区域 */
+        .replies-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .reply-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .reply-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .reply-author {
+            color: #00ffff;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .reply-time {
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        .reply-content {
+            color: #cccccc;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .community-tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .tab-btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+            
+            .post-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .post-actions {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">PromptGallery</a>
+            <ul class="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="search.html">发现</a></li>
+                <li><a href="community.html" style="color: #00ffff;">社区</a></li>
+                <li><a href="#">API</a></li>
+            </ul>
+            <div class="user-actions">
+                <a href="login.html" class="btn btn-outline">登录</a>
+                <a href="register.html" class="btn btn-primary">注册</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <main class="main-content">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1 class="page-title">PromptGallery 社区</h1>
+            <p class="page-subtitle">与全球创作者交流、分享、优化你的Prompt</p>
+        </div>
+
+        <!-- 社区导航标签 -->
+        <div class="community-tabs">
+            <button class="tab-btn active" onclick="switchTab('optimizations')">
+                <i class="fas fa-lightbulb"></i>
+                优化建议
+            </button>
+            <button class="tab-btn" onclick="switchTab('qa')">
+                <i class="fas fa-question-circle"></i>
+                问答讨论
+            </button>
+            <button class="tab-btn" onclick="switchTab('trades')">
+                <i class="fas fa-handshake"></i>
+                交易请求
+            </button>
+        </div>
+
+        <!-- 优化建议区域 -->
+        <section class="content-section active" id="optimizations">
+            <!-- 发帖表单 -->
+            <div class="post-form">
+                <h3 class="form-title">分享你的优化建议</h3>
+                <form onsubmit="submitOptimization(event)">
+                    <div class="form-group">
+                        <label class="form-label">原始Prompt</label>
+                        <textarea class="form-input form-textarea" placeholder="粘贴需要优化的原始Prompt..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">优化后的Prompt</label>
+                        <textarea class="form-input form-textarea" placeholder="分享你的优化版本..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">优化说明</label>
+                        <textarea class="form-input form-textarea" placeholder="解释你的优化思路和改进点..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">AI模型</label>
+                        <select class="form-input form-select">
+                            <option value="">选择适用的AI模型</option>
+                            <option value="midjourney">Midjourney</option>
+                            <option value="dalle">DALL·E</option>
+                            <option value="stable-diffusion">Stable Diffusion</option>
+                            <option value="chatgpt">ChatGPT</option>
+                            <option value="gemini">Gemini</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-paper-plane"></i>
+                        发布优化建议
+                    </button>
+                </form>
+            </div>
+
+            <!-- 优化建议列表 -->
+            <div class="posts-container">
+                <div class="post-card optimization-card">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <img src="https://picsum.photos/50/50?random=20" alt="用户头像" class="author-avatar">
+                            <div class="author-info">
+                                <span class="author-name">PromptMaster_AI</span>
+                                <span class="post-time">2小时前</span>
+                            </div>
+                        </div>
+                        <span class="post-category">Midjourney优化</span>
+                    </div>
+                    
+                    <h3 class="post-title">赛博朋克城市场景优化版本</h3>
+                    
+                    <div class="optimization-votes">
+                        <button class="vote-btn upvoted" onclick="toggleVote(this, 'up')">
+                            <i class="fas fa-thumbs-up"></i> 23
+                        </button>
+                        <button class="vote-btn" onclick="toggleVote(this, 'down')">
+                            <i class="fas fa-thumbs-down"></i> 2
+                        </button>
+                    </div>
+                    
+                    <div class="post-content">
+                        <p>我对原版的赛博朋克城市Prompt进行了优化，增加了更多细节描述和光影效果，能够生成更加逼真的雨夜反射效果。</p>
+                        
+                        <p><strong>原始版本：</strong></p>
+                        <div class="post-prompt">
+                            cyberpunk city at night, neon lights, rain --ar 16:9
+                            <button class="copy-btn" onclick="copyPrompt(this)">复制</button>
+                        </div>
+                        
+                        <p><strong>优化版本：</strong></p>
+                        <div class="post-prompt">
+                            cyberpunk city at night, heavy rain, neon lights reflecting on wet asphalt, puddles with colorful reflections, futuristic architecture, atmospheric fog, cinematic lighting, photorealistic, high detail --ar 16:9 --v 6 --style raw
+                            <button class="copy-btn" onclick="copyPrompt(this)">复制</button>
+                        </div>
+                    </div>
+                    
+                    <div class="post-actions">
+                        <div class="post-stats">
+                            <span class="stat-item">
+                                <i class="fas fa-eye"></i> 1.2K
+                            </span>
+                            <span class="stat-item">
+                                <i class="fas fa-comment"></i> 15
+                            </span>
+                            <span class="stat-item">
+                                <i class="fas fa-share"></i> 8
+                            </span>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="replyToPost(this)">回复</button>
+                            <button class="action-btn" onclick="sharePost(this)">分享</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 回复区域 -->
+                    <div class="replies-section" style="display: none;">
+                        <div class="reply-item">
+                            <div class="reply-header">
+                                <span class="reply-author">AIDesigner_Pro</span>
+                                <span class="reply-time">1小时前</span>
+                            </div>
+                            <div class="reply-content">
+                                太棒了！我试了你的优化版本，效果确实比原版好很多，雨水反射效果非常逼真。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="post-card optimization-card">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <img src="https://picsum.photos/50/50?random=21" alt="用户头像" class="author-avatar">
+                            <div class="author-info">
+                                <span class="author-name">CreativeGuru</span>
+                                <span class="post-time">5小时前</span>
+                            </div>
+                        </div>
+                        <span class="post-category">ChatGPT优化</span>
+                    </div>
+                    
+                    <h3 class="post-title">商业文案生成器改进版</h3>
+                    
+                    <div class="optimization-votes">
+                        <button class="vote-btn" onclick="toggleVote(this, 'up')">
+                            <i class="fas fa-thumbs-up"></i> 18
+                        </button>
+                        <button class="vote-btn" onclick="toggleVote(this, 'down')">
+                            <i class="fas fa-thumbs-down"></i> 1
+                        </button>
+                    </div>
+                    
+                    <div class="post-content">
+                        <p>针对商业文案生成，我添加了更具体的角色设定和输出格式要求，让生成的文案更加专业和有针对性。</p>
+                        
+                        <div class="post-prompt">
+                            Act as a professional marketing copywriter with 10+ years of experience. Create compelling product descriptions that highlight benefits over features, use emotional triggers, and include a clear call-to-action. Format: Headline + 3 bullet points + CTA. Target audience: [specify]. Product: [describe].
+                            <button class="copy-btn" onclick="copyPrompt(this)">复制</button>
+                        </div>
+                    </div>
+                    
+                    <div class="post-actions">
+                        <div class="post-stats">
+                            <span class="stat-item">
+                                <i class="fas fa-eye"></i> 856
+                            </span>
+                            <span class="stat-item">
+                                <i class="fas fa-comment"></i> 12
+                            </span>
+                            <span class="stat-item">
+                                <i class="fas fa-share"></i> 5
+                            </span>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="replyToPost(this)">回复</button>
+                            <button class="action-btn" onclick="sharePost(this)">分享</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 问答讨论区域 -->
+        <section class="content-section" id="qa">
+            <!-- 发帖表单 -->
+            <div class="post-form">
+                <h3 class="form-title">提出你的问题</h3>
+                <form onsubmit="submitQuestion(event)">
+                    <div class="form-group">
+                        <label class="form-label">问题标题</label>
+                        <input type="text" class="form-input" placeholder="简洁描述你的问题...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">详细描述</label>
+                        <textarea class="form-input form-textarea" placeholder="详细描述你遇到的问题，包括使用的Prompt、AI模型、期望效果等..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">相关Prompt（可选）</label>
+                        <textarea class="form-input" placeholder="如果有相关的Prompt，请粘贴在这里..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">问题分类</label>
+                        <select class="form-input form-select">
+                            <option value="">选择问题分类</option>
+                            <option value="prompt-writing">Prompt编写技巧</option>
+                            <option value="model-usage">AI模型使用</option>
+                            <option value="parameter-tuning">参数调优</option>
+                            <option value="troubleshooting">问题排查</option>
+                            <option value="best-practices">最佳实践</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-question-circle"></i>
+                        发布问题
+                    </button>
+                </form>
+            </div>
+
+            <!-- 问答列表 -->
+            <div class="posts-container">
+                <div class="post-card qa-card">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <img src="https://picsum.photos/50/50?random=22" alt="用户头像" class="author-avatar">
+                            <div class="author-info">
+                                <span class="author-name">NewbieLearner</span>
+                                <span class="post-time">3小时前</span>
+                            </div>
+                        </div>
+                        <span class="qa-status">待解决</span>
+                    </div>
+                    
+                    <h3 class="post-title">如何让Midjourney生成更一致的角色形象？</h3>
+                    
+                    <div class="post-content">
+                        <p>我在使用Midjourney创建角色时，每次生成的角色形象都不太一样，即使使用相同的Prompt。有什么方法可以让角色形象更加一致吗？</p>
+                        
+                        <div class="post-prompt">
+                            beautiful anime girl, long black hair, blue eyes, school uniform --ar 9:16 --v 6
+                            <button class="copy-btn" onclick="copyPrompt(this)">复制</button>
+                        </div>
+                    </div>
+                    
+                    <div class="post-actions">
+                        <div class="post-stats">
+                            <span class="stat-item">
+                                <i class="fas fa-eye"></i> 234
+                            </span>
+                            <span class="stat-item">
+                                <i class="fas fa-comment"></i> 8
+                            </span>
+                            <span class="stat-item">
+                                <i class="fas fa-heart"></i> 12
+                            </span>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="answerQuestion(this)">回答</button>
+                            <button class="action-btn" onclick="sharePost(this)">分享</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 回复区域 -->
+                    <div class="replies-section" style="display: none;">
+                        <div class="reply-item">
+                            <div class="reply-header">
+                                <span class="reply-author">MidjourneyExpert</span>
+                                <span class="reply-time">2小时前</span>
+                            </div>
+                            <div class="reply-content">
+                                你可以尝试使用--seed参数来固定随机种子，或者使用图片作为参考。另外，添加更具体的描述词也有帮助。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="post-card qa-card">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <img src="https://picsum.photos/50/50?random=23" alt="用户头像" class="author-avatar">
+                            <div class="author-info">
+                                <span class="author-name">BusinessUser</span>
+                                <span class="post-time">1天前</span>
+                            </div>
+                        </div>
+                        <span class="qa-status solved">已解决</span>
+                    </div>
+                    
+                    <h3 class="post-title">ChatGPT在处理长文本时经常中断，如何解决？</h3>
+                    
+                    <div class="post-content">
+                        <p>我在使用ChatGPT处理长篇文档时，它经常在中途停止输出。有什么方法可以让它完整输出长文本吗？</p>
+                    </div>
+                    
+                    <div class="post-actions">
+                        <div class="post-stats">
+                            <span class="stat-item">
+                                <i class="fas fa-eye"></i> 567
+                            </span>
+                            <span class="stat-item">
+                                <i class="fas fa-comment"></i> 15
+                            </span>
+                            <span class="stat-item">
+                                <i class="fas fa-heart"></i> 23
+                            </span>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="viewAnswers(this)">查看答案</button>
+                            <button class="action-btn" onclick="sharePost(this)">分享</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 交易请求区域 -->
+        <section class="content-section" id="trades">
+            <!-- 发帖表单 -->
+            <div class="post-form">
+                <h3 class="form-title">发布交易请求</h3>
+                <form onsubmit="submitTradeRequest(event)">
+                    <div class="form-group">
+                        <label class="form-label">需求标题</label>
+                        <input type="text" class="form-input" placeholder="简洁描述你的需求...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">详细需求</label>
+                        <textarea class="form-input form-textarea" placeholder="详细描述你需要的Prompt类型、应用场景、期望效果等..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">预算范围</label>
+                        <select class="form-input form-select">
+                            <option value="">选择预算范围</option>
+                            <option value="5-20">$5 - $20</option>
+                            <option value="20-50">$20 - $50</option>
+                            <option value="50-100">$50 - $100</option>
+                            <option value="100+">$100+</option>
+                            <option value="negotiable">面议</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">交付时间</label>
+                        <select class="form-input form-select">
+                            <option value="">选择期望交付时间</option>
+                            <option value="1-day">1天内</option>
+                            <option value="3-days">3天内</option>
+                            <option value="1-week">1周内</option>
+                            <option value="flexible">时间灵活</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-handshake"></i>
+                        发布需求
+                    </button>
+                </form>
+            </div>
+
+            <!-- 交易请求列表 -->
+            <div class="posts-container">
+                <div class="post-card trade-card">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <img src="https://picsum.photos/50/50?random=24" alt="用户头像" class="author-avatar">
+                            <div class="author-info">
+                                <span class="author-name">StartupFounder</span>
+                                <span class="post-time">4小时前</span>
+                            </div>
+                        </div>
+                        <span class="trade-status">进行中</span>
+                    </div>
+                    
+                    <h3 class="post-title">寻找专业的产品介绍文案Prompt</h3>
+                    
+                    <div class="trade-price">$30 - $50</div>
+                    
+                    <div class="post-content">
+                        <p>我需要一套完整的产品介绍文案生成Prompt，用于我们的SaaS产品营销。要求能够生成专业、有说服力的产品描述，包括功能介绍、优势对比、用户痛点解决方案等。</p>
+                        
+                        <p><strong>具体要求：</strong></p>
+                        <ul style="margin-left: 1.5rem; color: #cccccc;">
+                            <li>适用于ChatGPT和Claude</li>
+                            <li>能够生成不同长度的文案（短版、长版）</li>
+                            <li>包含情感触发词和行动号召</li>
+                            <li>提供使用示例和参数说明</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="post-actions">
+                        <div class="post-stats">
+                            <span class="stat-item">
+                                <i class="fas fa-eye"></i> 156
+                            </span>
+                            <span class="stat-item">
+                                <i class="fas fa-comment"></i> 5
+                            </span>
+                            <span class="stat-item">
+                                <i class="fas fa-handshake"></i> 3个报价
+                            </span>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="makeOffer(this)">报价</button>
+                            <button class="action-btn" onclick="contactClient(this)">联系</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="post-card trade-card">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <img src="https://picsum.photos/50/50?random=25" alt="用户头像" class="author-avatar">
+                            <div class="author-info">
+                                <span class="author-name">GameDeveloper</span>
+                                <span class="post-time">1天前</span>
+                            </div>
+                        </div>
+                        <span class="trade-status">已完成</span>
+                    </div>
+                    
+                    <h3 class="post-title">游戏角色设计Prompt定制</h3>
+                    
+                    <div class="trade-price">$75</div>
+                    
+                    <div class="post-content">
+                        <p>需要一套专门用于游戏角色设计的Midjourney Prompt模板，能够生成不同风格的游戏角色（奇幻、科幻、现代等）。</p>
+                        
+                        <p><strong>已交付内容：</strong></p>
+                        <ul style="margin-left: 1.5rem; color: #00ff00;">
+                            <li>✅ 20个不同风格的角色Prompt模板</li>
+                            <li>✅ 详细的参数说明文档</li>
+                            <li>✅ 使用示例和效果图</li>
+                            <li>✅ 7天免费修改服务</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="post-actions">
+                        <div class="post-stats">
+                            <span class="stat-item">
+                                <i class="fas fa-eye"></i> 423
+                            </span>
+                            <span class="stat-item">
+                                <i class="fas fa-star"></i> 5.0评分
+                            </span>
+                            <span class="stat-item">
+                                <i class="fas fa-check-circle"></i> 已完成
+                            </span>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="viewDelivery(this)">查看交付</button>
+                            <button class="action-btn" onclick="leaveReview(this)">评价</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // 切换标签页
+        function switchTab(tabName) {
+            // 隐藏所有内容区域
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // 移除所有标签按钮的active状态
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 显示选中的内容区域
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // 复制Prompt
+        function copyPrompt(button) {
+            const promptText = button.parentElement.textContent.replace('复制', '').trim();
+            navigator.clipboard.writeText(promptText).then(() => {
+                button.textContent = '已复制';
+                setTimeout(() => {
+                    button.textContent = '复制';
+                }, 2000);
+            });
+        }
+
+        // 投票功能
+        function toggleVote(button, type) {
+            const isActive = button.classList.contains('upvoted');
+            
+            // 移除所有投票状态
+            button.parentElement.querySelectorAll('.vote-btn').forEach(btn => {
+                btn.classList.remove('upvoted');
+            });
+            
+            // 如果不是当前激活状态，则激活
+            if (!isActive) {
+                button.classList.add('upvoted');
+            }
+        }
+
+        // 回复帖子
+        function replyToPost(button) {
+            const repliesSection = button.closest('.post-card').querySelector('.replies-section');
+            if (repliesSection.style.display === 'none') {
+                repliesSection.style.display = 'block';
+                button.textContent = '收起回复';
+            } else {
+                repliesSection.style.display = 'none';
+                button.textContent = '回复';
+            }
+        }
+
+        // 分享帖子
+        function sharePost(button) {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('链接已复制到剪贴板！');
+            });
+        }
+
+        // 回答问题
+        function answerQuestion(button) {
+            alert('跳转到回答页面');
+        }
+
+        // 查看答案
+        function viewAnswers(button) {
+            const repliesSection = button.closest('.post-card').querySelector('.replies-section');
+            if (repliesSection) {
+                repliesSection.style.display = 'block';
+            }
+        }
+
+        // 报价
+        function makeOffer(button) {
+            const price = prompt('请输入你的报价（美元）:');
+            if (price) {
+                alert(`报价 $${price} 已提交！`);
+            }
+        }
+
+        // 联系客户
+        function contactClient(button) {
+            alert('跳转到私信页面');
+        }
+
+        // 查看交付
+        function viewDelivery(button) {
+            alert('查看交付内容');
+        }
+
+        // 留下评价
+        function leaveReview(button) {
+            alert('跳转到评价页面');
+        }
+
+        // 表单提交处理
+        function submitOptimization(event) {
+            event.preventDefault();
+            alert('优化建议已发布！');
+            event.target.reset();
+        }
+
+        function submitQuestion(event) {
+            event.preventDefault();
+            alert('问题已发布！');
+            event.target.reset();
+        }
+
+        function submitTradeRequest(event) {
+            event.preventDefault();
+            alert('交易请求已发布！');
+            event.target.reset();
+        }
+    </script>
+</body>
+</html>
