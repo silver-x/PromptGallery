@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PromptGallery API 文档</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 侧边栏样式 */
+        .sidebar {
+            width: 280px;
+            background: #2c3e50;
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: #34495e;
+            border-bottom: 1px solid #4a5f7a;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .search-box {
+            padding: 15px 20px;
+            border-bottom: 1px solid #4a5f7a;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            background: #34495e;
+            color: white;
+            font-size: 14px;
+        }
+
+        .search-box input::placeholder {
+            color: #bdc3c7;
+        }
+
+        .nav-menu {
+            padding: 0;
+        }
+
+        .nav-section {
+            margin-bottom: 10px;
+        }
+
+        .nav-section-title {
+            padding: 15px 20px 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #bdc3c7;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 8px 20px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #34495e;
+            border-left-color: #3498db;
+        }
+
+        .nav-item.active {
+            background: #34495e;
+            border-left-color: #e74c3c;
+            color: #fff;
+        }
+
+        .nav-sub-item {
+            padding-left: 40px;
+            font-size: 0.9rem;
+        }
+
+        /* 主内容区域样式 */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 0;
+        }
+
+        .content-header {
+            background: white;
+            padding: 20px 30px;
+            border-bottom: 1px solid #e9ecef;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .content-body {
+            padding: 30px;
+        }
+
+        .api-section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .api-section-header {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .api-section-header h2 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .api-section-header p {
+            color: #6c757d;
+            margin: 0;
+        }
+
+        .api-section-content {
+            padding: 30px;
+        }
+
+        .api-endpoint {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .api-endpoint:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .endpoint-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .http-method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 10px;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .method-get { background: #d4edda; color: #155724; }
+        .method-post { background: #cce5ff; color: #004085; }
+        .method-put { background: #fff3cd; color: #856404; }
+        .method-delete { background: #f8d7da; color: #721c24; }
+
+        .endpoint-path {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 1.1rem;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .endpoint-description {
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+
+        .info-section {
+            margin-bottom: 25px;
+        }
+
+        .info-section h4 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .params-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .params-table th,
+        .params-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .params-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .param-name {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            color: #e74c3c;
+            font-weight: 500;
+        }
+
+        .param-type {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .code-header {
+            background: #e9ecef;
+            padding: 8px 15px;
+            margin: -20px -20px 15px -20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #495057;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .base-info {
+            background: #e8f4fd;
+            border: 1px solid #bee5eb;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .base-info h3 {
+            color: #0c5460;
+            margin-bottom: 15px;
+        }
+
+        .base-info ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .base-info li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .base-info li:before {
+            content: '•';
+            color: #17a2b8;
+            position: absolute;
+            left: 0;
+        }
+
+        .error-codes {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 6px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .error-codes h3 {
+            color: #c53030;
+            margin-bottom: 15px;
+        }
+
+        .error-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .error-table th,
+        .error-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #fed7d7;
+        }
+
+        .error-table th {
+            background: #fed7d7;
+            font-weight: 600;
+            color: #c53030;
+        }
+
+        .notes {
+            background: #fff8e1;
+            border: 1px solid #ffecb3;
+            border-radius: 6px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .notes h3 {
+            color: #f57c00;
+            margin-bottom: 15px;
+        }
+
+        .notes ol {
+            padding-left: 20px;
+        }
+
+        .notes li {
+            margin-bottom: 8px;
+            color: #5d4037;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .content-body {
+                padding: 20px;
+            }
+
+            .api-section-content {
+                padding: 20px;
+            }
+        }
+
+        /* 滚动条样式 */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: #34495e;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #4a5f7a;
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #5a6f8a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 侧边栏 -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1>PromptGallery</h1>
+                <p>API 接口文档</p>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="搜索接口...">
+            </div>
+            
+            <div class="nav-menu">
+                <div class="nav-section">
+                    <div class="nav-section-title">认证模块</div>
+                    <a href="#auth" class="nav-item">用户认证</a>
+                    <a href="#auth-register" class="nav-item nav-sub-item">用户注册</a>
+                    <a href="#auth-login" class="nav-item nav-sub-item">用户登录</a>
+                    <a href="#auth-refresh" class="nav-item nav-sub-item">刷新令牌</a>
+                    <a href="#auth-logout" class="nav-item nav-sub-item">用户登出</a>
+                    <a href="#auth-forgot" class="nav-item nav-sub-item">忘记密码</a>
+                    <a href="#auth-reset" class="nav-item nav-sub-item">重置密码</a>
+                    <a href="#auth-change" class="nav-item nav-sub-item">修改密码</a>
+                    <a href="#auth-verify" class="nav-item nav-sub-item">验证令牌</a>
+                    <a href="#auth-captcha" class="nav-item nav-sub-item">获取验证码</a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">用户管理</div>
+                    <a href="#users" class="nav-item">用户管理</a>
+                    <a href="#users-me" class="nav-item nav-sub-item">获取当前用户</a>
+                    <a href="#users-update" class="nav-item nav-sub-item">更新用户信息</a>
+                    <a href="#users-profile" class="nav-item nav-sub-item">获取用户资料</a>
+                    <a href="#users-follow" class="nav-item nav-sub-item">关注用户</a>
+                    <a href="#users-unfollow" class="nav-item nav-sub-item">取消关注</a>
+                    <a href="#users-following" class="nav-item nav-sub-item">关注列表</a>
+                    <a href="#users-followers" class="nav-item nav-sub-item">粉丝列表</a>
+                    <a href="#users-prompts" class="nav-item nav-sub-item">用户Prompt</a>
+                    <a href="#users-search" class="nav-item nav-sub-item">搜索用户</a>
+                    <a href="#users-avatar" class="nav-item nav-sub-item">上传头像</a>
+                    <a href="#users-stats" class="nav-item nav-sub-item">用户统计</a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Prompt管理</div>
+                    <a href="#prompts" class="nav-item">Prompt内容</a>
+                    <a href="#prompts-list" class="nav-item nav-sub-item">获取列表</a>
+                    <a href="#prompts-detail" class="nav-item nav-sub-item">获取详情</a>
+                    <a href="#prompts-create" class="nav-item nav-sub-item">创建Prompt</a>
+                    <a href="#prompts-update" class="nav-item nav-sub-item">更新Prompt</a>
+                    <a href="#prompts-delete" class="nav-item nav-sub-item">删除Prompt</a>
+                    <a href="#prompts-publish" class="nav-item nav-sub-item">发布Prompt</a>
+                    <a href="#prompts-copy" class="nav-item nav-sub-item">复制Prompt</a>
+                    <a href="#prompts-search" class="nav-item nav-sub-item">搜索Prompt</a>
+                    <a href="#prompts-categories" class="nav-item nav-sub-item">分类列表</a>
+                    <a href="#prompts-tags" class="nav-item nav-sub-item">标签列表</a>
+                    <a href="#prompts-models" class="nav-item nav-sub-item">AI模型</a>
+                    <a href="#prompts-upload" class="nav-item nav-sub-item">上传图片</a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">社区互动</div>
+                    <a href="#community" class="nav-item">社区互动</a>
+                    <a href="#community-like-prompt" class="nav-item nav-sub-item">点赞Prompt</a>
+                    <a href="#community-unlike-prompt" class="nav-item nav-sub-item">取消点赞Prompt</a>
+                    <a href="#community-like-comment" class="nav-item nav-sub-item">点赞评论</a>
+                    <a href="#community-unlike-comment" class="nav-item nav-sub-item">取消点赞评论</a>
+                    <a href="#community-favorite" class="nav-item nav-sub-item">收藏Prompt</a>
+                    <a href="#community-unfavorite" class="nav-item nav-sub-item">取消收藏</a>
+                    <a href="#community-favorites" class="nav-item nav-sub-item">收藏列表</a>
+                    <a href="#community-folders" class="nav-item nav-sub-item">收藏夹管理</a>
+                    <a href="#community-comments" class="nav-item nav-sub-item">评论管理</a>
+                    <a href="#community-feed" class="nav-item nav-sub-item">动态推送</a>
+                    <a href="#community-trending" class="nav-item nav-sub-item">热门内容</a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">交易系统</div>
+                    <a href="#transactions" class="nav-item">交易系统</a>
+                    <a href="#transactions-orders" class="nav-item nav-sub-item">订单管理</a>
+                    <a href="#transactions-payments" class="nav-item nav-sub-item">支付处理</a>
+                    <a href="#transactions-wallet" class="nav-item nav-sub-item">钱包管理</a>
+                    <a href="#transactions-refunds" class="nav-item nav-sub-item">退款处理</a>
+                    <a href="#transactions-earnings" class="nav-item nav-sub-item">收益统计</a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">系统管理</div>
+                    <a href="#admin" class="nav-item">系统管理</a>
+                    <a href="#admin-users" class="nav-item nav-sub-item">用户管理</a>
+                    <a href="#admin-prompts" class="nav-item nav-sub-item">内容管理</a>
+                    <a href="#admin-settings" class="nav-item nav-sub-item">系统配置</a>
+                    <a href="#admin-stats" class="nav-item nav-sub-item">数据统计</a>
+                    <a href="#admin-logs" class="nav-item nav-sub-item">系统日志</a>
+                    <a href="#admin-maintenance" class="nav-item nav-sub-item">系统维护</a>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- 主内容区域 -->
+        <main class="main-content">
+            <div class="content-header">
+                <h1>PromptGallery API 接口文档</h1>
+                <p>完整的 API 接口说明文档，包含所有模块的详细接口信息</p>
+            </div>
+            
+            <div class="content-body">
+                <!-- 用户认证模块 -->
+                <section id="auth" class="api-section">
+                    <div class="api-section-header">
+                        <h2>用户认证 API</h2>
+                        <p>用户认证模块提供用户注册、登录、密码管理等核心认证功能。</p>
+                    </div>
+                    <div class="api-section-content">
+                        <div class="base-info">
+                            <h3>基础信息</h3>
+                            <ul>
+                                <li><strong>基础URL:</strong> <code>/api/v1/auth</code></li>
+                                <li><strong>认证方式:</strong> JWT Token</li>
+                                <li><strong>内容类型:</strong> <code>application/json</code></li>
+                            </ul>
+                        </div>
+                        
+                        <!-- 用户注册 -->
+                        <div id="auth-register" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-post">POST</span>
+                                <span class="endpoint-path">/register</span>
+                            </div>
+                            <div class="endpoint-description">用户注册新账户</div>
+                            
+                            <div class="info-section">
+                                <h4>请求参数</h4>
+                                <table class="params-table">
+                                    <thead>
+                                        <tr>
+                                            <th>参数名</th>
+                                            <th>类型</th>
+                                            <th>必填</th>
+                                            <th>说明</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><span class="param-name">username</span></td>
+                                            <td><span class="param-type">string</span></td>
+                                            <td>是</td>
+                                            <td>用户名，3-50字符，唯一</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="param-name">email</span></td>
+                                            <td><span class="param-type">string</span></td>
+                                            <td>是</td>
+                                            <td>邮箱地址，唯一</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="param-name">password</span></td>
+                                            <td><span class="param-type">string</span></td>
+                                            <td>是</td>
+                                            <td>密码，8-50字符</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="param-name">nickname</span></td>
+                                            <td><span class="param-type">string</span></td>
+                                            <td>否</td>
+                                            <td>昵称，1-100字符</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="param-name">captcha</span></td>
+                                            <td><span class="param-type">string</span></td>
+                                            <td>是</td>
+                                            <td>验证码</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="info-section">
+                                <h4>响应示例</h4>
+                                <div class="code-block">
+                                    <div class="code-header">JSON</div>
+                                    <pre>{
+  "code": 200,
+  "message": "注册成功",
+  "data": {
+    "user_id": 12345,
+    "username": "testuser",
+    "email": "test@example.com",
+    "nickname": "测试用户",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "expires_in": 86400
+  }
+}</pre>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 用户登录 -->
+                        <div id="auth-login" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-post">POST</span>
+                                <span class="endpoint-path">/login</span>
+                            </div>
+                            <div class="endpoint-description">用户登录获取访问令牌</div>
+                            
+                            <div class="info-section">
+                                <h4>请求参数</h4>
+                                <table class="params-table">
+                                    <thead>
+                                        <tr>
+                                            <th>参数名</th>
+                                            <th>类型</th>
+                                            <th>必填</th>
+                                            <th>说明</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><span class="param-name">login</span></td>
+                                            <td><span class="param-type">string</span></td>
+                                            <td>是</td>
+                                            <td>用户名或邮箱</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="param-name">password</span></td>
+                                            <td><span class="param-type">string</span></td>
+                                            <td>是</td>
+                                            <td>密码</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="param-name">remember_me</span></td>
+                                            <td><span class="param-type">boolean</span></td>
+                                            <td>否</td>
+                                            <td>是否记住登录状态</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="param-name">captcha</span></td>
+                                            <td><span class="param-type">string</span></td>
+                                            <td>否</td>
+                                            <td>验证码</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- 刷新令牌 -->
+                        <div id="auth-refresh" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-post">POST</span>
+                                <span class="endpoint-path">/refresh</span>
+                            </div>
+                            <div class="endpoint-description">使用刷新令牌获取新的访问令牌</div>
+                        </div>
+                        
+                        <!-- 用户登出 -->
+                        <div id="auth-logout" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-post">POST</span>
+                                <span class="endpoint-path">/logout</span>
+                            </div>
+                            <div class="endpoint-description">用户登出，使令牌失效</div>
+                        </div>
+                        
+                        <!-- 忘记密码 -->
+                        <div id="auth-forgot" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-post">POST</span>
+                                <span class="endpoint-path">/forgot-password</span>
+                            </div>
+                            <div class="endpoint-description">发送密码重置邮件</div>
+                        </div>
+                        
+                        <!-- 重置密码 -->
+                        <div id="auth-reset" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-post">POST</span>
+                                <span class="endpoint-path">/reset-password</span>
+                            </div>
+                            <div class="endpoint-description">使用重置令牌重置密码</div>
+                        </div>
+                        
+                        <!-- 修改密码 -->
+                        <div id="auth-change" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-post">POST</span>
+                                <span class="endpoint-path">/change-password</span>
+                            </div>
+                            <div class="endpoint-description">用户修改密码</div>
+                        </div>
+                        
+                        <!-- 验证令牌 -->
+                        <div id="auth-verify" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/verify</span>
+                            </div>
+                            <div class="endpoint-description">验证访问令牌是否有效</div>
+                        </div>
+                        
+                        <!-- 获取验证码 -->
+                        <div id="auth-captcha" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/captcha</span>
+                            </div>
+                            <div class="endpoint-description">获取图形验证码</div>
+                        </div>
+                        
+                        <div class="error-codes">
+                            <h3>错误码说明</h3>
+                            <table class="error-table">
+                                <thead>
+                                    <tr>
+                                        <th>错误码</th>
+                                        <th>说明</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>400</td><td>请求参数错误</td></tr>
+                                    <tr><td>401</td><td>未授权访问</td></tr>
+                                    <tr><td>403</td><td>禁止访问</td></tr>
+                                    <tr><td>404</td><td>资源不存在</td></tr>
+                                    <tr><td>409</td><td>资源冲突（如用户名已存在）</td></tr>
+                                    <tr><td>422</td><td>参数验证失败</td></tr>
+                                    <tr><td>429</td><td>请求过于频繁</td></tr>
+                                    <tr><td>500</td><td>服务器内部错误</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="notes">
+                            <h3>注意事项</h3>
+                            <ol>
+                                <li><strong>密码安全:</strong> 密码需要包含大小写字母、数字和特殊字符，长度8-50字符</li>
+                                <li><strong>令牌过期:</strong> 访问令牌默认24小时过期，刷新令牌30天过期</li>
+                                <li><strong>频率限制:</strong> 登录接口限制每分钟5次尝试，注册接口限制每小时3次</li>
+                                <li><strong>验证码:</strong> 连续登录失败3次后需要验证码</li>
+                                <li><strong>邮箱验证:</strong> 注册后需要验证邮箱才能完全激活账户</li>
+                            </ol>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 用户管理模块 -->
+                <section id="users" class="api-section">
+                    <div class="api-section-header">
+                        <h2>用户管理 API</h2>
+                        <p>用户管理模块提供用户信息管理、关注关系、个人资料等功能。</p>
+                    </div>
+                    <div class="api-section-content">
+                        <div class="base-info">
+                            <h3>基础信息</h3>
+                            <ul>
+                                <li><strong>基础URL:</strong> <code>/api/v1/users</code></li>
+                                <li><strong>认证方式:</strong> JWT Token</li>
+                                <li><strong>内容类型:</strong> <code>application/json</code></li>
+                            </ul>
+                        </div>
+                        
+                        <!-- 获取当前用户信息 -->
+                        <div id="users-me" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/me</span>
+                            </div>
+                            <div class="endpoint-description">获取当前登录用户的详细信息</div>
+                        </div>
+                        
+                        <!-- 更新用户信息 -->
+                        <div id="users-update" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-put">PUT</span>
+                                <span class="endpoint-path">/me</span>
+                            </div>
+                            <div class="endpoint-description">更新当前用户的个人信息</div>
+                        </div>
+                        
+                        <!-- 获取用户公开信息 -->
+                        <div id="users-profile" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/{user_id}</span>
+                            </div>
+                            <div class="endpoint-description">获取指定用户的公开信息</div>
+                        </div>
+                        
+                        <!-- 关注用户 -->
+                        <div id="users-follow" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-post">POST</span>
+                                <span class="endpoint-path">/{user_id}/follow</span>
+                            </div>
+                            <div class="endpoint-description">关注指定用户</div>
+                        </div>
+                        
+                        <!-- 取消关注用户 -->
+                        <div id="users-unfollow" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-delete">DELETE</span>
+                                <span class="endpoint-path">/{user_id}/follow</span>
+                            </div>
+                            <div class="endpoint-description">取消关注指定用户</div>
+                        </div>
+                        
+                        <!-- 获取用户关注列表 -->
+                        <div id="users-following" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/{user_id}/following</span>
+                            </div>
+                            <div class="endpoint-description">获取用户关注的人员列表</div>
+                        </div>
+                        
+                        <!-- 获取用户粉丝列表 -->
+                        <div id="users-followers" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/{user_id}/followers</span>
+                            </div>
+                            <div class="endpoint-description">获取用户的粉丝列表</div>
+                        </div>
+                        
+                        <!-- 获取用户Prompt列表 -->
+                        <div id="users-prompts" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/{user_id}/prompts</span>
+                            </div>
+                            <div class="endpoint-description">获取用户发布的Prompt列表</div>
+                        </div>
+                        
+                        <!-- 搜索用户 -->
+                        <div id="users-search" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/search</span>
+                            </div>
+                            <div class="endpoint-description">搜索用户</div>
+                        </div>
+                        
+                        <!-- 上传头像 -->
+                        <div id="users-avatar" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-post">POST</span>
+                                <span class="endpoint-path">/me/avatar</span>
+                            </div>
+                            <div class="endpoint-description">上传用户头像</div>
+                        </div>
+                        
+                        <!-- 获取用户统计信息 -->
+                        <div id="users-stats" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/{user_id}/stats</span>
+                            </div>
+                            <div class="endpoint-description">获取用户的统计信息</div>
+                        </div>
+                        
+                        <div class="notes">
+                            <h3>注意事项</h3>
+                            <ol>
+                                <li><strong>隐私保护:</strong> 用户邮箱等敏感信息只有本人可见</li>
+                                <li><strong>关注限制:</strong> 每个用户最多可关注1000个用户</li>
+                                <li><strong>头像规格:</strong> 头像文件最大2MB，推荐尺寸200x200像素</li>
+                                <li><strong>频率限制:</strong> 关注/取消关注操作限制每分钟10次</li>
+                                <li><strong>数据缓存:</strong> 用户统计数据可能有5分钟延迟</li>
+                                <li><strong>账户状态:</strong> 被封禁用户的公开信息将不可访问</li>
+                            </ol>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Prompt内容模块 -->
+                <section id="prompts" class="api-section">
+                    <div class="api-section-header">
+                        <h2>Prompt内容 API</h2>
+                        <p>Prompt内容模块提供Prompt的创建、编辑、删除、搜索、分类管理等核心功能。</p>
+                    </div>
+                    <div class="api-section-content">
+                        <div class="base-info">
+                            <h3>基础信息</h3>
+                            <ul>
+                                <li><strong>基础URL:</strong> <code>/api/v1/prompts</code></li>
+                                <li><strong>认证方式:</strong> JWT Token（部分接口需要）</li>
+                                <li><strong>内容类型:</strong> <code>application/json</code></li>
+                            </ul>
+                        </div>
+                        
+                        <!-- 获取Prompt列表 -->
+                        <div id="prompts-list" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/</span>
+                            </div>
+                            <div class="endpoint-description">获取Prompt列表，支持多种筛选和排序</div>
+                        </div>
+                        
+                        <!-- 获取Prompt详情 -->
+                        <div id="prompts-detail" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/{prompt_id}</span>
+                            </div>
+                            <div class="endpoint-description">获取指定Prompt的详细信息</div>
+                        </div>
+                        
+                        <!-- 创建Prompt -->
+                        <div id="prompts-create" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-post">POST</span>
+                                <span class="endpoint-path">/</span>
+                            </div>
+                            <div class="endpoint-description">创建新的Prompt</div>
+                        </div>
+                        
+                        <!-- 更新Prompt -->
+                        <div id="prompts-update" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-put">PUT</span>
+                                <span class="endpoint-path">/{prompt_id}</span>
+                            </div>
+                            <div class="endpoint-description">更新指定的Prompt</div>
+                        </div>
+                        
+                        <!-- 删除Prompt -->
+                        <div id="prompts-delete" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-delete">DELETE</span>
+                                <span class="endpoint-path">/{prompt_id}</span>
+                            </div>
+                            <div class="endpoint-description">删除指定的Prompt</div>
+                        </div>
+                        
+                        <!-- 发布Prompt -->
+                        <div id="prompts-publish" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-post">POST</span>
+                                <span class="endpoint-path">/{prompt_id}/publish</span>
+                            </div>
+                            <div class="endpoint-description">发布Prompt（从草稿状态变为已发布）</div>
+                        </div>
+                        
+                        <!-- 复制Prompt -->
+                        <div id="prompts-copy" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-post">POST</span>
+                                <span class="endpoint-path">/{prompt_id}/copy</span>
+                            </div>
+                            <div class="endpoint-description">复制Prompt内容（增加复制计数）</div>
+                        </div>
+                        
+                        <!-- 搜索Prompt -->
+                        <div id="prompts-search" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/search</span>
+                            </div>
+                            <div class="endpoint-description">全文搜索Prompt</div>
+                        </div>
+                        
+                        <!-- 获取分类列表 -->
+                        <div id="prompts-categories" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/categories</span>
+                            </div>
+                            <div class="endpoint-description">获取所有分类列表</div>
+                        </div>
+                        
+                        <!-- 获取标签列表 -->
+                        <div id="prompts-tags" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/tags</span>
+                            </div>
+                            <div class="endpoint-description">获取标签列表</div>
+                        </div>
+                        
+                        <!-- 获取AI模型列表 -->
+                        <div id="prompts-models" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/ai-models</span>
+                            </div>
+                            <div class="endpoint-description">获取支持的AI模型列表</div>
+                        </div>
+                        
+                        <!-- 上传预览图 -->
+                        <div id="prompts-upload" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-post">POST</span>
+                                <span class="endpoint-path">/upload-image</span>
+                            </div>
+                            <div class="endpoint-description">上传Prompt预览图</div>
+                        </div>
+                        
+                        <div class="notes">
+                            <h3>注意事项</h3>
+                            <ol>
+                                <li><strong>内容审核:</strong> 发布的Prompt需要通过内容审核</li>
+                                <li><strong>版权保护:</strong> 禁止上传侵犯版权的内容</li>
+                                <li><strong>质量评分:</strong> 系统会根据用户反馈自动计算质量评分</li>
+                                <li><strong>搜索优化:</strong> 标题和描述会被索引用于搜索</li>
+                                <li><strong>图片规格:</strong> 预览图推荐尺寸16:9，最大5MB</li>
+                                <li><strong>标签限制:</strong> 每个Prompt最多可添加10个标签</li>
+                                <li><strong>价格设置:</strong> 付费Prompt价格范围0.99-99.99</li>
+                                <li><strong>频率限制:</strong> 创建Prompt限制每小时10个</li>
+                            </ol>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 社区互动模块 -->
+                <section id="community" class="api-section">
+                    <div class="api-section-header">
+                        <h2>社区互动 API</h2>
+                        <p>社区互动模块提供点赞、收藏、评论、收藏夹管理等社区功能。</p>
+                    </div>
+                    <div class="api-section-content">
+                        <div class="base-info">
+                            <h3>基础信息</h3>
+                            <ul>
+                                <li><strong>基础URL:</strong> <code>/api/v1/community</code></li>
+                                <li><strong>认证方式:</strong> JWT Token</li>
+                                <li><strong>内容类型:</strong> <code>application/json</code></li>
+                            </ul>
+                        </div>
+                        
+                        <!-- 点赞Prompt -->
+                        <div id="community-like-prompt" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-post">POST</span>
+                                <span class="endpoint-path">/likes/prompts/{prompt_id}</span>
+                            </div>
+                            <div class="endpoint-description">对指定Prompt进行点赞</div>
+                        </div>
+                        
+                        <!-- 取消点赞Prompt -->
+                        <div id="community-unlike-prompt" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-delete">DELETE</span>
+                                <span class="endpoint-path">/likes/prompts/{prompt_id}</span>
+                            </div>
+                            <div class="endpoint-description">取消对指定Prompt的点赞</div>
+                        </div>
+                        
+                        <!-- 点赞评论 -->
+                        <div id="community-like-comment" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-post">POST</span>
+                                <span class="endpoint-path">/likes/comments/{comment_id}</span>
+                            </div>
+                            <div class="endpoint-description">对指定评论进行点赞</div>
+                        </div>
+                        
+                        <!-- 取消点赞评论 -->
+                        <div id="community-unlike-comment" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-delete">DELETE</span>
+                                <span class="endpoint-path">/likes/comments/{comment_id}</span>
+                            </div>
+                            <div class="endpoint-description">取消对指定评论的点赞</div>
+                        </div>
+                        
+                        <!-- 收藏Prompt -->
+                        <div id="community-favorite" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-post">POST</span>
+                                <span class="endpoint-path">/favorites</span>
+                            </div>
+                            <div class="endpoint-description">收藏指定Prompt到收藏夹</div>
+                        </div>
+                        
+                        <!-- 取消收藏Prompt -->
+                        <div id="community-unfavorite" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-delete">DELETE</span>
+                                <span class="endpoint-path">/favorites/{prompt_id}</span>
+                            </div>
+                            <div class="endpoint-description">取消收藏指定Prompt</div>
+                        </div>
+                        
+                        <!-- 获取用户收藏列表 -->
+                        <div id="community-favorites" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/favorites</span>
+                            </div>
+                            <div class="endpoint-description">获取当前用户的收藏列表</div>
+                        </div>
+                        
+                        <!-- 收藏夹管理 -->
+                        <div id="community-folders" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/folders</span>
+                            </div>
+                            <div class="endpoint-description">收藏夹管理相关接口</div>
+                            <div class="info-section">
+                                <h4>相关接口</h4>
+                                <ul>
+                                    <li><code>POST /folders</code> - 创建收藏夹</li>
+                                    <li><code>GET /folders</code> - 获取收藏夹列表</li>
+                                    <li><code>PUT /folders/{folder_id}</code> - 更新收藏夹</li>
+                                    <li><code>DELETE /folders/{folder_id}</code> - 删除收藏夹</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- 评论管理 -->
+                        <div id="community-comments" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/comments</span>
+                            </div>
+                            <div class="endpoint-description">评论管理相关接口</div>
+                            <div class="info-section">
+                                <h4>相关接口</h4>
+                                <ul>
+                                    <li><code>POST /comments</code> - 发表评论</li>
+                                    <li><code>GET /comments</code> - 获取评论列表</li>
+                                    <li><code>PUT /comments/{comment_id}</code> - 更新评论</li>
+                                    <li><code>DELETE /comments/{comment_id}</code> - 删除评论</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- 获取关注用户动态 -->
+                        <div id="community-feed" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/feed</span>
+                            </div>
+                            <div class="endpoint-description">获取关注用户的最新动态</div>
+                        </div>
+                        
+                        <!-- 获取热门内容 -->
+                        <div id="community-trending" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/trending</span>
+                            </div>
+                            <div class="endpoint-description">获取热门Prompt和评论</div>
+                        </div>
+                        
+                        <div class="notes">
+                            <h3>注意事项</h3>
+                            <ol>
+                                <li><strong>防刷机制:</strong> 点赞、评论等操作有频率限制</li>
+                                <li><strong>内容审核:</strong> 评论内容需要通过审核才能显示</li>
+                                <li><strong>收藏夹限制:</strong> 每个用户最多可创建50个收藏夹</li>
+                                <li><strong>评论嵌套:</strong> 评论最多支持3层嵌套回复</li>
+                                <li><strong>敏感词过滤:</strong> 评论内容会进行敏感词检测</li>
+                                <li><strong>举报机制:</strong> 用户可以举报不当评论</li>
+                                <li><strong>数据缓存:</strong> 点赞数、评论数等统计数据可能有延迟</li>
+                                <li><strong>权限控制:</strong> 只能操作自己的评论和收藏</li>
+                            </ol>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 交易系统模块 -->
+                <section id="transactions" class="api-section">
+                    <div class="api-section-header">
+                        <h2>交易系统 API</h2>
+                        <p>交易系统模块提供订单管理、支付处理、钱包管理等交易相关功能。</p>
+                    </div>
+                    <div class="api-section-content">
+                        <div class="base-info">
+                            <h3>基础信息</h3>
+                            <ul>
+                                <li><strong>基础URL:</strong> <code>/api/v1/transactions</code></li>
+                                <li><strong>认证方式:</strong> JWT Token</li>
+                                <li><strong>内容类型:</strong> <code>application/json</code></li>
+                            </ul>
+                        </div>
+                        
+                        <!-- 订单管理 -->
+                        <div id="transactions-orders" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-post">POST</span>
+                                <span class="endpoint-path">/orders</span>
+                            </div>
+                            <div class="endpoint-description">订单管理相关接口</div>
+                            <div class="info-section">
+                                <h4>相关接口</h4>
+                                <ul>
+                                    <li><code>POST /orders</code> - 创建订单</li>
+                                    <li><code>GET /orders/{order_id}</code> - 获取订单详情</li>
+                                    <li><code>GET /orders</code> - 获取订单列表</li>
+                                    <li><code>POST /orders/{order_id}/cancel</code> - 取消订单</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- 支付处理 -->
+                        <div id="transactions-payments" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-post">POST</span>
+                                <span class="endpoint-path">/payments</span>
+                            </div>
+                            <div class="endpoint-description">支付处理相关接口</div>
+                            <div class="info-section">
+                                <h4>相关接口</h4>
+                                <ul>
+                                    <li><code>POST /payments</code> - 发起支付</li>
+                                    <li><code>GET /payments/{payment_id}/status</code> - 查询支付状态</li>
+                                    <li><code>POST /payments/notify</code> - 支付回调处理</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- 钱包管理 -->
+                        <div id="transactions-wallet" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/wallet</span>
+                            </div>
+                            <div class="endpoint-description">钱包管理相关接口</div>
+                            <div class="info-section">
+                                <h4>相关接口</h4>
+                                <ul>
+                                    <li><code>GET /wallet</code> - 获取钱包信息</li>
+                                    <li><code>GET /wallet/transactions</code> - 获取钱包流水</li>
+                                    <li><code>POST /wallet/withdraw</code> - 申请提现</li>
+                                    <li><code>GET /wallet/withdraw-history</code> - 获取提现记录</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- 退款处理 -->
+                        <div id="transactions-refunds" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-post">POST</span>
+                                <span class="endpoint-path">/refunds</span>
+                            </div>
+                            <div class="endpoint-description">退款处理相关接口</div>
+                            <div class="info-section">
+                                <h4>相关接口</h4>
+                                <ul>
+                                    <li><code>POST /refunds</code> - 申请退款</li>
+                                    <li><code>GET /refunds/{refund_id}</code> - 获取退款详情</li>
+                                    <li><code>GET /refunds</code> - 获取退款列表</li>
+                                    <li><code>POST /refunds/{refund_id}/approve</code> - 审批退款</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- 收益统计 -->
+                        <div id="transactions-earnings" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/earnings</span>
+                            </div>
+                            <div class="endpoint-description">收益统计相关接口</div>
+                            <div class="info-section">
+                                <h4>相关接口</h4>
+                                <ul>
+                                    <li><code>GET /earnings</code> - 获取收益统计</li>
+                                    <li><code>GET /earnings/daily</code> - 获取每日收益</li>
+                                    <li><code>GET /earnings/monthly</code> - 获取月度收益</li>
+                                    <li><code>GET /earnings/reports</code> - 生成收益报告</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="notes">
+                            <h3>注意事项</h3>
+                            <ol>
+                                <li><strong>支付安全:</strong> 所有支付接口都使用HTTPS加密传输</li>
+                                <li><strong>订单状态:</strong> 订单状态包括待支付、已支付、已完成、已取消、已退款</li>
+                                <li><strong>支付方式:</strong> 支持支付宝、微信支付、银行卡等多种支付方式</li>
+                                <li><strong>手续费:</strong> 平台收取交易金额的5%作为手续费</li>
+                                <li><strong>提现规则:</strong> 最低提现金额10元，工作日1-3天到账</li>
+                                <li><strong>退款政策:</strong> 购买后7天内可申请退款</li>
+                                <li><strong>发票服务:</strong> 支持开具电子发票</li>
+                                <li><strong>风控系统:</strong> 异常交易会被风控系统拦截</li>
+                            </ol>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 系统管理模块 -->
+                <section id="admin" class="api-section">
+                    <div class="api-section-header">
+                        <h2>系统管理 API</h2>
+                        <p>系统管理模块提供用户管理、内容管理、系统配置等管理员功能。</p>
+                    </div>
+                    <div class="api-section-content">
+                        <div class="base-info">
+                            <h3>基础信息</h3>
+                            <ul>
+                                <li><strong>基础URL:</strong> <code>/api/v1/admin</code></li>
+                                <li><strong>认证方式:</strong> JWT Token（管理员权限）</li>
+                                <li><strong>内容类型:</strong> <code>application/json</code></li>
+                            </ul>
+                        </div>
+                        
+                        <!-- 用户管理 -->
+                        <div id="admin-users" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/users</span>
+                            </div>
+                            <div class="endpoint-description">用户管理相关接口</div>
+                            <div class="info-section">
+                                <h4>相关接口</h4>
+                                <ul>
+                                    <li><code>GET /users</code> - 获取用户列表</li>
+                                    <li><code>GET /users/{user_id}</code> - 获取用户详情</li>
+                                    <li><code>PUT /users/{user_id}</code> - 更新用户信息</li>
+                                    <li><code>POST /users/{user_id}/ban</code> - 封禁用户</li>
+                                    <li><code>POST /users/{user_id}/unban</code> - 解封用户</li>
+                                    <li><code>DELETE /users/{user_id}</code> - 删除用户</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Prompt内容管理 -->
+                        <div id="admin-prompts" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/prompts</span>
+                            </div>
+                            <div class="endpoint-description">Prompt内容管理相关接口</div>
+                            <div class="info-section">
+                                <h4>相关接口</h4>
+                                <ul>
+                                    <li><code>GET /prompts</code> - 获取所有Prompt</li>
+                                    <li><code>GET /prompts/pending</code> - 获取待审核Prompt</li>
+                                    <li><code>POST /prompts/{prompt_id}/approve</code> - 审核通过</li>
+                                    <li><code>POST /prompts/{prompt_id}/reject</code> - 审核拒绝</li>
+                                    <li><code>DELETE /prompts/{prompt_id}</code> - 删除Prompt</li>
+                                    <li><code>POST /prompts/{prompt_id}/feature</code> - 设为精选</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- 系统配置 -->
+                        <div id="admin-settings" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/settings</span>
+                            </div>
+                            <div class="endpoint-description">系统配置相关接口</div>
+                            <div class="info-section">
+                                <h4>相关接口</h4>
+                                <ul>
+                                    <li><code>GET /settings</code> - 获取系统配置</li>
+                                    <li><code>PUT /settings</code> - 更新系统配置</li>
+                                    <li><code>GET /settings/categories</code> - 管理分类</li>
+                                    <li><code>POST /settings/categories</code> - 添加分类</li>
+                                    <li><code>PUT /settings/categories/{id}</code> - 更新分类</li>
+                                    <li><code>DELETE /settings/categories/{id}</code> - 删除分类</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- 数据统计 -->
+                        <div id="admin-stats" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/statistics</span>
+                            </div>
+                            <div class="endpoint-description">数据统计相关接口</div>
+                            <div class="info-section">
+                                <h4>相关接口</h4>
+                                <ul>
+                                    <li><code>GET /statistics/overview</code> - 获取概览统计</li>
+                                    <li><code>GET /statistics/users</code> - 用户统计</li>
+                                    <li><code>GET /statistics/prompts</code> - Prompt统计</li>
+                                    <li><code>GET /statistics/transactions</code> - 交易统计</li>
+                                    <li><code>GET /statistics/revenue</code> - 收入统计</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- 系统日志 -->
+                        <div id="admin-logs" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-get">GET</span>
+                                <span class="endpoint-path">/logs</span>
+                            </div>
+                            <div class="endpoint-description">系统日志相关接口</div>
+                            <div class="info-section">
+                                <h4>相关接口</h4>
+                                <ul>
+                                    <li><code>GET /logs</code> - 获取系统日志</li>
+                                    <li><code>GET /logs/operations</code> - 操作日志</li>
+                                    <li><code>GET /logs/errors</code> - 错误日志</li>
+                                    <li><code>GET /logs/security</code> - 安全日志</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- 系统维护 -->
+                        <div id="admin-maintenance" class="api-endpoint">
+                            <div class="endpoint-title">
+                                <span class="http-method method-post">POST</span>
+                                <span class="endpoint-path">/maintenance</span>
+                            </div>
+                            <div class="endpoint-description">系统维护相关接口</div>
+                            <div class="info-section">
+                                <h4>相关接口</h4>
+                                <ul>
+                                    <li><code>POST /maintenance/cache/clear</code> - 清理缓存</li>
+                                    <li><code>POST /maintenance/backup</code> - 数据备份</li>
+                                    <li><code>GET /maintenance/health</code> - 系统健康检查</li>
+                                    <li><code>POST /maintenance/notifications</code> - 发送系统通知</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="notes">
+                            <h3>注意事项</h3>
+                            <ol>
+                                <li><strong>权限控制:</strong> 所有管理接口需要管理员权限</li>
+                                <li><strong>操作日志:</strong> 所有管理操作都会记录详细日志</li>
+                                <li><strong>数据备份:</strong> 重要操作前建议先备份数据</li>
+                                <li><strong>审核流程:</strong> 内容审核需要遵循平台规范</li>
+                                <li><strong>系统监控:</strong> 关键指标会实时监控和告警</li>
+                                <li><strong>安全防护:</strong> 管理后台有IP白名单和访问频率限制</li>
+                                <li><strong>数据导出:</strong> 支持各种格式的数据导出功能</li>
+                                <li><strong>版本管理:</strong> 系统配置变更支持版本回滚</li>
+                            </ol>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // 搜索功能
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            navItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+        
+        // 导航点击事件
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // 移除所有active类
+                document.querySelectorAll('.nav-item').forEach(nav => {
+                    nav.classList.remove('active');
+                });
+                
+                // 添加active类到当前项
+                this.classList.add('active');
+                
+                // 滚动到对应部分
+                const targetId = this.getAttribute('href');
+                if (targetId && targetId !== '#') {
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                }
+            });
+        });
+        
+        // 滚动监听，高亮当前部分
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('.api-section');
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            let currentSection = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                const sectionHeight = section.offsetHeight;
+                
+                if (window.pageYOffset >= sectionTop && window.pageYOffset < sectionTop + sectionHeight) {
+                    currentSection = '#' + section.id;
+                }
+            });
+            
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href') === currentSection) {
+                    item.classList.add('active');
+                }
+            });
+        });
+        
+        // 移动端侧边栏切换
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('active');
+        }
+        
+        // 代码块复制功能
+        document.querySelectorAll('.code-block').forEach(block => {
+            const copyBtn = document.createElement('button');
+            copyBtn.textContent = '复制';
+            copyBtn.className = 'copy-btn';
+            copyBtn.style.cssText = `
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: #007bff;
+                color: white;
+                border: none;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 12px;
+                cursor: pointer;
+                opacity: 0;
+                transition: opacity 0.3s;
+            `;
+            
+            block.style.position = 'relative';
+            block.appendChild(copyBtn);
+            
+            block.addEventListener('mouseenter', () => {
+                copyBtn.style.opacity = '1';
+            });
+            
+            block.addEventListener('mouseleave', () => {
+                copyBtn.style.opacity = '0';
+            });
+            
+            copyBtn.addEventListener('click', () => {
+                const code = block.querySelector('pre').textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    copyBtn.textContent = '已复制';
+                    setTimeout(() => {
+                        copyBtn.textContent = '复制';
+                    }, 2000);
+                });
+            });
+        });
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置第一个导航项为活跃状态
+            const firstNavItem = document.querySelector('.nav-item');
+            if (firstNavItem) {
+                firstNavItem.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>
